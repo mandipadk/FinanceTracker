@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FinanceTracker.Views.StatisticsPage"
+             xmlns:viewmodel="clr-namespace:FinanceTracker.ViewModels"
+             xmlns:model="clr-namespace:FinanceTracker.Models"
+             xmlns:converters="clr-namespace:FinanceTracker.Converters"
+             x:DataType="viewmodel:StatisticsViewModel"
+             Title="{Binding Title}">
+
+    <RefreshView Command="{Binding RefreshCommand}" 
+                 IsRefreshing="{Binding IsBusy}">
+        <ScrollView>
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                  Padding="20"
+                  RowSpacing="20">
+
+                <!-- Time Frame Selector -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                    <Label Text="Financial Statistics" 
+                           FontSize="24" 
+                           FontAttributes="Bold"
+                           VerticalOptions="Center" />
+                    
+                    <Picker Grid.Column="1"
+                            Title="Time Frame"
+                            ItemsSource="{Binding TimeFrames}"
+                            SelectedItem="{Binding SelectedTimeFrame}"
+                            WidthRequest="150"
+                            VerticalOptions="Center" />
+                </Grid>
+
+                <!-- Summary Card -->
+                <Frame Grid.Row="1"
+                       Padding="15"
+                       HasShadow="True"
+                       CornerRadius="10">
+                    <Grid RowDefinitions="Auto,Auto" RowSpacing="15">
+                        <Label Grid.Row="0"
+                               Text="Financial Summary"
+                               FontSize="16"
+                               FontAttributes="Bold" />
+                        
+                        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                            <VerticalStackLayout Grid.Column="0" Spacing="5">
+                                <Label Text="Income"
+                                       FontSize="14"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                <Label Text="{Binding TotalIncome, StringFormat='{0:C}'}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#4CAF50" />
+                            </VerticalStackLayout>
+                            
+                            <VerticalStackLayout Grid.Column="1" Spacing="5">
+                                <Label Text="Expenses"
+                                       FontSize="14"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                <Label Text="{Binding TotalExpenses, StringFormat='{0:C}'}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#F44336" />
+                            </VerticalStackLayout>
+                            
+                            <VerticalStackLayout Grid.Column="2" Spacing="5">
+                                <Label Text="Balance"
+                                       FontSize="14"
+                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                <Label Text="{Binding Balance, StringFormat='{0:C}'}"
+                                       FontSize="18"
+                                       FontAttributes="Bold" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Grid>
+                </Frame>
+
+                <!-- Expenses by Category -->
+                <Frame Grid.Row="2"
+                       Padding="15"
+                       HasShadow="True"
+                       CornerRadius="10">
+                    <Grid RowDefinitions="Auto,*" RowSpacing="10">
+                        <Label Grid.Row="0"
+                               Text="Expenses by Category"
+                               FontSize="16"
+                               FontAttributes="Bold" />
+                        
+                        <CollectionView Grid.Row="1"
+                                        ItemsSource="{Binding ExpensesByCategory}"
+                                        HeightRequest="250"
+                                        EmptyView="No expense data available for the selected time period.">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="model:CategorySummary">
+                                    <Grid Padding="0,8" ColumnDefinitions="Auto,*,Auto,Auto">
+                                        <Frame Grid.Column="0"
+                                               HeightRequest="30"
+                                               WidthRequest="30"
+                                               CornerRadius="15"
+                                               Padding="0"
+                                               BackgroundColor="{Binding Color}"
+                                               VerticalOptions="Center" />
+                                        
+                                        <Label Grid.Column="1"
+                                               Text="{Binding Category}"
+                                               FontSize="14"
+                                               VerticalOptions="Center"
+                                               Margin="10,0,0,0" />
+                                        
+                                        <Label Grid.Column="2"
+                                               Text="{Binding Amount, StringFormat='{0:C}'}"
+                                               FontSize="14"
+                                               FontAttributes="Bold"
+                                               VerticalOptions="Center"
+                                               Margin="0,0,10,0" />
+                                        
+                                        <Label Grid.Column="3"
+                                               Text="{Binding Percentage, StringFormat='{0:F1}%'}"
+                                               FontSize="14"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Grid>
+                </Frame>
+
+                <!-- Monthly Comparison -->
+                <Frame Grid.Row="3"
+                       Padding="15"
+                       HasShadow="True"
+                       CornerRadius="10">
+                    <Grid RowDefinitions="Auto,*" RowSpacing="10">
+                        <Label Grid.Row="0"
+                               Text="Monthly Comparison"
+                               FontSize="16"
+                               FontAttributes="Bold" />
+                        
+                        <CollectionView Grid.Row="1"
+                                        ItemsSource="{Binding MonthlyComparison}"
+                                        HeightRequest="250"
+                                        EmptyView="No monthly data available.">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="model:MonthlyComparison">
+                                    <Grid Padding="0,8" RowDefinitions="Auto,Auto" RowSpacing="5">
+                                        <Label Grid.Row="0"
+                                               Text="{Binding Month}"
+                                               FontSize="14"
+                                               FontAttributes="Bold" />
+                                        
+                                        <Grid Grid.Row="1" ColumnDefinitions="*,*,*">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                                <Label Text="Income"
+                                                       FontSize="12"
+                                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                                <Label Text="{Binding Income, StringFormat='{0:C}'}"
+                                                       FontSize="14"
+                                                       TextColor="#4CAF50" />
+                                            </VerticalStackLayout>
+                                            
+                                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                <Label Text="Expenses"
+                                                       FontSize="12"
+                                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                                <Label Text="{Binding Expenses, StringFormat='{0:C}'}"
+                                                       FontSize="14"
+                                                       TextColor="#F44336" />
+                                            </VerticalStackLayout>
+                                            
+                                            <VerticalStackLayout Grid.Column="2" Spacing="2">
+                                                <Label Text="Balance"
+                                                       FontSize="12"
+                                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                                <Label Text="{Binding Balance, StringFormat='{0:C}'}"
+                                                       FontSize="14"
+                                                       FontAttributes="Bold" />
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Grid>
+                </Frame>
+
+                <!-- Export Button -->
+                <Button Grid.Row="4"
+                        Text="Export Data"
+                        Command="{Binding ExportDataCommand}"
+                        HorizontalOptions="Center"
+                        WidthRequest="200" />
+            </Grid>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

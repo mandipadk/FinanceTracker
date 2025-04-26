@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FinanceTracker.Views.ExpensesPage"
+             xmlns:viewmodel="clr-namespace:FinanceTracker.ViewModels"
+             xmlns:model="clr-namespace:FinanceTracker.Models"
+             xmlns:converters="clr-namespace:FinanceTracker.Converters"
+             x:DataType="viewmodel:ExpensesViewModel"
+             Title="{Binding Title}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:CategoryToIconConverter x:Key="CategoryToIconConverter" />
+            <converters:TransactionTypeToColorConverter x:Key="TransactionTypeToColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <!-- Main Content -->
+        <Grid RowDefinitions="Auto,*" Padding="20">
+            <HorizontalStackLayout Grid.Row="0" Spacing="10" Margin="0,0,0,10">
+                <Label Text="All Transactions" 
+                       FontSize="24" 
+                       FontAttributes="Bold"
+                       VerticalOptions="Center" />
+                
+                <Button Text="+"
+                        Command="{Binding AddTransactionCommand}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        CornerRadius="20"
+                        HeightRequest="40"
+                        WidthRequest="40"
+                        Padding="0"
+                        HorizontalOptions="End"
+                        VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            
+            <RefreshView Grid.Row="1" 
+                         Command="{Binding RefreshCommand}" 
+                         IsRefreshing="{Binding IsBusy}">
+                <CollectionView ItemsSource="{Binding Transactions}"
+                                SelectionMode="None"
+                                EmptyView="No transactions yet. Add a new transaction to get started.">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:Transaction">
+                            <SwipeView>
+                                <SwipeView.RightItems>
+                                    <SwipeItems>
+                                        <SwipeItem Text="Delete"
+                                                   BackgroundColor="Red"
+                                                   Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:ExpensesViewModel}}, Path=DeleteTransactionCommand}"
+                                                   CommandParameter="{Binding .}" />
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
+                                
+                                <Grid Padding="0,10" ColumnDefinitions="Auto,*,Auto">
+                                    <Frame Grid.Column="0"
+                                           HeightRequest="40"
+                                           WidthRequest="40"
+                                           CornerRadius="20"
+                                           Padding="0"
+                                           BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                           VerticalOptions="Center">
+                                        <Label Text="{Binding Category, Converter={StaticResource CategoryToIconConverter}}"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"
+                                               FontSize="18" />
+                                    </Frame>
+                                    
+                                    <VerticalStackLayout Grid.Column="1" Spacing="5" Margin="10,0">
+                                        <Label Text="{Binding Description}"
+                                               FontSize="16"
+                                               LineBreakMode="TailTruncation" />
+                                        <HorizontalStackLayout Spacing="10">
+                                            <Label Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}"
+                                                   FontSize="12"
+                                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                            <Label Text="{Binding Vendor}"
+                                                   FontSize="12"
+                                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
+                                                   IsVisible="{Binding Vendor, Converter={StaticResource StringNotEmptyConverter}}" />
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+                                    
+                                    <Label Grid.Column="2"
+                                           Text="{Binding Amount, StringFormat='{0:C}'}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           VerticalOptions="Center"
+                                           TextColor="{Binding Type, Converter={StaticResource TransactionTypeToColorConverter}}" />
+                                </Grid>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+        </Grid>
+        
+        <!-- Add Transaction Popup -->
+        <Grid IsVisible="{Binding IsAddTransactionVisible}"
+              BackgroundColor="{AppThemeBinding Light=#80000000, Dark=#80000000}">
+            <Frame Margin="20"
+                   Padding="20"
+                   CornerRadius="10"
+                   VerticalOptions="Center">
+                <ScrollView>
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="Add Transaction"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center" />
+                        
+                        <!-- Error Message -->
+                        <Frame IsVisible="{Binding IsError}"
+                               BackgroundColor="#FFF0F0"
+                               BorderColor="#FFD0D0"
+                               Padding="10"
+                               Margin="0,0,0,10"
+                               HasShadow="False">
+                            <Label Text="{Binding ErrorMessage}"
+                                   TextColor="#D00000"
+                                   FontSize="14" />
+                        </Frame>
+                        
+                        <!-- Transaction Type -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Transaction Type"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <HorizontalStackLayout Spacing="10">
+                                <RadioButton Content="Expense"
+                                             IsChecked="{Binding TransactionType, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static model:TransactionType.Expense}}" />
+                                <RadioButton Content="Income"
+                                             IsChecked="{Binding TransactionType, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static model:TransactionType.Income}}" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                        
+                        <!-- Description -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Description"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="50">
+                                <Entry Placeholder="Enter description"
+                                       Text="{Binding Description}"
+                                       BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Amount -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Amount"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="50">
+                                <Entry Placeholder="Enter amount"
+                                       Text="{Binding Amount}"
+                                       Keyboard="Numeric"
+                                       BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Date -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Date"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <DatePicker Date="{Binding Date}"
+                                        Format="D"
+                                        BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Category -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Category"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Picker ItemsSource="{Binding Source={x:Static model:TransactionCategory.Food}, Converter={StaticResource EnumToListConverter}}"
+                                    SelectedItem="{Binding Category}"
+                                    BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Vendor -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Vendor (Optional)"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="50">
+                                <Entry Placeholder="Enter vendor name"
+                                       Text="{Binding Vendor}"
+                                       BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Payment Method -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Payment Method (Optional)"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="50">
+                                <Entry Placeholder="Enter payment method"
+                                       Text="{Binding PaymentMethod}"
+                                       BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Recurring -->
+                        <VerticalStackLayout Spacing="5">
+                            <CheckBox IsChecked="{Binding IsRecurring}" />
+                            <Label Text="Recurring Transaction"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Recurrence Frequency -->
+                        <VerticalStackLayout Spacing="5" IsVisible="{Binding IsRecurring}">
+                            <Label Text="Frequency"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Picker ItemsSource="{Binding Source={x:Array Type=x:String}, StringFormat=Daily,Weekly,Monthly,Yearly}"
+                                    SelectedItem="{Binding RecurrenceFrequency}"
+                                    BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Buttons -->
+                        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                            <Button Text="Cancel"
+                                    Command="{Binding CancelAddTransactionCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource Primary}"
+                                    BorderColor="{StaticResource Primary}"
+                                    BorderWidth="1"
+                                    WidthRequest="120" />
+                            
+                            <Button Text="Save"
+                                    Command="{Binding SaveTransactionCommand}"
+                                    WidthRequest="120" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Frame>
+        </Grid>
+    </Grid>
+</ContentPage>

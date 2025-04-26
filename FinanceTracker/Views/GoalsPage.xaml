@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FinanceTracker.Views.GoalsPage"
+             xmlns:viewmodel="clr-namespace:FinanceTracker.ViewModels"
+             xmlns:model="clr-namespace:FinanceTracker.Models"
+             xmlns:converters="clr-namespace:FinanceTracker.Converters"
+             x:DataType="viewmodel:GoalsViewModel"
+             Title="{Binding Title}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:DoubleToPercentageConverter x:Key="DoubleToPercentageConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <!-- Main Content -->
+        <Grid RowDefinitions="Auto,Auto,*" Padding="20">
+            <HorizontalStackLayout Grid.Row="0" Spacing="10" Margin="0,0,0,10">
+                <Label Text="Savings Goals" 
+                       FontSize="24" 
+                       FontAttributes="Bold"
+                       VerticalOptions="Center" />
+                
+                <Button Text="+"
+                        Command="{Binding AddGoalCommand}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        CornerRadius="20"
+                        HeightRequest="40"
+                        WidthRequest="40"
+                        Padding="0"
+                        HorizontalOptions="End"
+                        VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            
+            <!-- Goals Summary -->
+            <Frame Grid.Row="1"
+                   Padding="15"
+                   HasShadow="True"
+                   CornerRadius="10"
+                   Margin="0,0,0,15">
+                <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                    <Label Grid.Row="0"
+                           Text="Overall Progress"
+                           FontSize="16"
+                           FontAttributes="Bold" />
+                    
+                    <ProgressBar Grid.Row="1"
+                                 Progress="{Binding OverallProgress, Converter={StaticResource DoubleToPercentageConverter}}"
+                                 HeightRequest="10" />
+                    
+                    <Grid Grid.Row="2" ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="5">
+                            <Label Text="Total Goals"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                            <Label Text="{Binding TotalGoalAmount, StringFormat='{0:C}'}"
+                                   FontSize="18"
+                                   FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                        
+                        <VerticalStackLayout Grid.Column="1" Spacing="5">
+                            <Label Text="Saved"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                            <Label Text="{Binding TotalSavedAmount, StringFormat='{0:C}'}"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#4CAF50" />
+                        </VerticalStackLayout>
+                        
+                        <VerticalStackLayout Grid.Column="2" Spacing="5">
+                            <Label Text="Progress"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                            <Label Text="{Binding OverallProgress, StringFormat='{0:F1}%'}"
+                                   FontSize="18"
+                                   FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Grid>
+            </Frame>
+            
+            <RefreshView Grid.Row="2" 
+                         Command="{Binding RefreshCommand}" 
+                         IsRefreshing="{Binding IsBusy}">
+                <CollectionView ItemsSource="{Binding Goals}"
+                                SelectionMode="None"
+                                EmptyView="No savings goals yet. Add a new goal to get started.">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:Goal">
+                            <SwipeView>
+                                <SwipeView.RightItems>
+                                    <SwipeItems>
+                                        <SwipeItem Text="Delete"
+                                                   BackgroundColor="Red"
+                                                   Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:GoalsViewModel}}, Path=DeleteGoalCommand}"
+                                                   CommandParameter="{Binding .}" />
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
+                                
+                                <Frame Margin="0,5" Padding="15" HasShadow="True" CornerRadius="10">
+                                    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding Icon}"
+                                                   FontSize="30"
+                                                   VerticalOptions="Center" />
+                                            
+                                            <VerticalStackLayout Grid.Column="1" Spacing="5" Margin="10,0">
+                                                <Label Text="{Binding Name}"
+                                                       FontSize="16"
+                                                       FontAttributes="Bold"
+                                                       LineBreakMode="TailTruncation" />
+                                                <Label Text="{Binding Description}"
+                                                       FontSize="14"
+                                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
+                                                       LineBreakMode="TailTruncation" />
+                                            </VerticalStackLayout>
+                                            
+                                            <Label Grid.Column="2"
+                                                   Text="{Binding TargetAmount, StringFormat='{0:C}'}"
+                                                   FontSize="16"
+                                                   FontAttributes="Bold"
+                                                   VerticalOptions="Center" />
+                                        </Grid>
+                                        
+                                        <ProgressBar Grid.Row="1"
+                                                     Progress="{Binding ProgressPercentage, Converter={StaticResource DoubleToPercentageConverter}}"
+                                                     HeightRequest="10" />
+                                        
+                                        <Grid Grid.Row="2" ColumnDefinitions="*,*,Auto">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="5">
+                                                <Label Text="Saved"
+                                                       FontSize="12"
+                                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                                <Label Text="{Binding CurrentAmount, StringFormat='{0:C}'}"
+                                                       FontSize="14"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#4CAF50" />
+                                            </VerticalStackLayout>
+                                            
+                                            <VerticalStackLayout Grid.Column="1" Spacing="5">
+                                                <Label Text="Target Date"
+                                                       FontSize="12"
+                                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                                <Label Text="{Binding TargetDate, StringFormat='{0:MMM dd, yyyy}'}"
+                                                       FontSize="14"
+                                                       FontAttributes="Bold" />
+                                            </VerticalStackLayout>
+                                            
+                                            <Button Grid.Column="2"
+                                                    Text="Update"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:GoalsViewModel}}, Path=UpdateGoalAmountCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    BackgroundColor="{StaticResource Primary}"
+                                                    TextColor="White"
+                                                    FontSize="12"
+                                                    CornerRadius="15"
+                                                    HeightRequest="30"
+                                                    Padding="10,0"
+                                                    VerticalOptions="Center" />
+                                        </Grid>
+                                    </Grid>
+                                </Frame>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+        </Grid>
+        
+        <!-- Add Goal Popup -->
+        <Grid IsVisible="{Binding IsAddGoalVisible}"
+              BackgroundColor="{AppThemeBinding Light=#80000000, Dark=#80000000}">
+            <Frame Margin="20"
+                   Padding="20"
+                   CornerRadius="10"
+                   VerticalOptions="Center">
+                <ScrollView>
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="Add Savings Goal"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center" />
+                        
+                        <!-- Error Message -->
+                        <Frame IsVisible="{Binding IsError}"
+                               BackgroundColor="#FFF0F0"
+                               BorderColor="#FFD0D0"
+                               Padding="10"
+                               Margin="0,0,0,10"
+                               HasShadow="False">
+                            <Label Text="{Binding ErrorMessage}"
+                                   TextColor="#D00000"
+                                   FontSize="14" />
+                        </Frame>
+                        
+                        <!-- Name -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Goal Name"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="50">
+                                <Entry Placeholder="Enter goal name"
+                                       Text="{Binding Name}"
+                                       BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Description -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Description (Optional)"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="80">
+                                <Editor Placeholder="Enter description"
+                                        Text="{Binding Description}"
+                                        AutoSize="TextChanges"
+                                        BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Target Amount -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Target Amount"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="50">
+                                <Entry Placeholder="Enter target amount"
+                                       Text="{Binding TargetAmount}"
+                                       Keyboard="Numeric"
+                                       BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Current Amount -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Current Amount (Optional)"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="50">
+                                <Entry Placeholder="Enter current amount"
+                                       Text="{Binding CurrentAmount}"
+                                       Keyboard="Numeric"
+                                       BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Start Date -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Start Date"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <DatePicker Date="{Binding StartDate}"
+                                        Format="D"
+                                        BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Target Date -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Target Date"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <DatePicker Date="{Binding TargetDate}"
+                                        Format="D"
+                                        BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Goal Type -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Goal Type"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Picker ItemsSource="{Binding Source={x:Static model:GoalType.ShortTerm}, Converter={StaticResource EnumToListConverter}}"
+                                    SelectedItem="{Binding GoalType}"
+                                    BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Icon -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Icon"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="50">
+                                <Entry Placeholder="Enter icon (emoji)"
+                                       Text="{Binding Icon}"
+                                       BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Buttons -->
+                        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                            <Button Text="Cancel"
+                                    Command="{Binding CancelAddGoalCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource Primary}"
+                                    BorderColor="{StaticResource Primary}"
+                                    BorderWidth="1"
+                                    WidthRequest="120" />
+                            
+                            <Button Text="Save"
+                                    Command="{Binding SaveGoalCommand}"
+                                    WidthRequest="120" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Frame>
+        </Grid>
+    </Grid>
+</ContentPage>

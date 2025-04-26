@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FinanceTracker.Views.BudgetPage"
+             xmlns:viewmodel="clr-namespace:FinanceTracker.ViewModels"
+             xmlns:model="clr-namespace:FinanceTracker.Models"
+             xmlns:converters="clr-namespace:FinanceTracker.Converters"
+             x:DataType="viewmodel:BudgetViewModel"
+             Title="{Binding Title}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:CategoryToIconConverter x:Key="CategoryToIconConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <!-- Main Content -->
+        <Grid RowDefinitions="Auto,Auto,*" Padding="20">
+            <HorizontalStackLayout Grid.Row="0" Spacing="10" Margin="0,0,0,10">
+                <Label Text="Budget Management" 
+                       FontSize="24" 
+                       FontAttributes="Bold"
+                       VerticalOptions="Center" />
+                
+                <Button Text="+"
+                        Command="{Binding AddBudgetCommand}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        CornerRadius="20"
+                        HeightRequest="40"
+                        WidthRequest="40"
+                        Padding="0"
+                        HorizontalOptions="End"
+                        VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            
+            <!-- Budget Summary -->
+            <Frame Grid.Row="1"
+                   Padding="15"
+                   HasShadow="True"
+                   CornerRadius="10"
+                   Margin="0,0,0,15">
+                <Grid RowDefinitions="Auto,Auto" RowSpacing="15">
+                    <Label Grid.Row="0"
+                           Text="Monthly Budget Summary"
+                           FontSize="16"
+                           FontAttributes="Bold" />
+                    
+                    <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" Spacing="5">
+                            <Label Text="Total Budget"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                            <Label Text="{Binding TotalBudget, StringFormat='{0:C}'}"
+                                   FontSize="18"
+                                   FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                        
+                        <VerticalStackLayout Grid.Column="1" Spacing="5">
+                            <Label Text="Spent"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                            <Label Text="{Binding TotalSpent, StringFormat='{0:C}'}"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#F44336" />
+                        </VerticalStackLayout>
+                        
+                        <VerticalStackLayout Grid.Column="2" Spacing="5">
+                            <Label Text="Remaining"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                            <Label Text="{Binding TotalRemaining, StringFormat='{0:C}'}"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="#4CAF50" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Grid>
+            </Frame>
+            
+            <RefreshView Grid.Row="2" 
+                         Command="{Binding RefreshCommand}" 
+                         IsRefreshing="{Binding IsBusy}">
+                <CollectionView ItemsSource="{Binding Budgets}"
+                                SelectionMode="None"
+                                EmptyView="No budgets yet. Add a new budget to get started.">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:Budget">
+                            <SwipeView>
+                                <SwipeView.RightItems>
+                                    <SwipeItems>
+                                        <SwipeItem Text="Delete"
+                                                   BackgroundColor="Red"
+                                                   Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:BudgetViewModel}}, Path=DeleteBudgetCommand}"
+                                                   CommandParameter="{Binding .}" />
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
+                                
+                                <Frame Margin="0,5" Padding="15" HasShadow="True" CornerRadius="10">
+                                    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <Frame Grid.Column="0"
+                                                   HeightRequest="40"
+                                                   WidthRequest="40"
+                                                   CornerRadius="20"
+                                                   Padding="0"
+                                                   BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                                   VerticalOptions="Center">
+                                                <Label Text="{Binding Category, Converter={StaticResource CategoryToIconConverter}}"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"
+                                                       FontSize="18" />
+                                            </Frame>
+                                            
+                                            <VerticalStackLayout Grid.Column="1" Spacing="5" Margin="10,0">
+                                                <Label Text="{Binding Name}"
+                                                       FontSize="16"
+                                                       FontAttributes="Bold"
+                                                       LineBreakMode="TailTruncation" />
+                                                <Label Text="{Binding Category}"
+                                                       FontSize="14"
+                                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                            </VerticalStackLayout>
+                                            
+                                            <Label Grid.Column="2"
+                                                   Text="{Binding Amount, StringFormat='{0:C}'}"
+                                                   FontSize="16"
+                                                   FontAttributes="Bold"
+                                                   VerticalOptions="Center" />
+                                        </Grid>
+                                        
+                                        <ProgressBar Grid.Row="1"
+                                                     Progress="{Binding PercentageUsed, Converter={StaticResource DoubleToPercentageConverter}}"
+                                                     HeightRequest="10" />
+                                        
+                                        <Grid Grid.Row="2" ColumnDefinitions="*,*">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="5">
+                                                <Label Text="Spent"
+                                                       FontSize="12"
+                                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                                <Label Text="{Binding CurrentSpending, StringFormat='{0:C}'}"
+                                                       FontSize="14"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#F44336" />
+                                            </VerticalStackLayout>
+                                            
+                                            <VerticalStackLayout Grid.Column="1" Spacing="5" HorizontalOptions="End">
+                                                <Label Text="Remaining"
+                                                       FontSize="12"
+                                                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+                                                <Label Text="{Binding RemainingAmount, StringFormat='{0:C}'}"
+                                                       FontSize="14"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#4CAF50" />
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </Grid>
+                                </Frame>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+        </Grid>
+        
+        <!-- Add Budget Popup -->
+        <Grid IsVisible="{Binding IsAddBudgetVisible}"
+              BackgroundColor="{AppThemeBinding Light=#80000000, Dark=#80000000}">
+            <Frame Margin="20"
+                   Padding="20"
+                   CornerRadius="10"
+                   VerticalOptions="Center">
+                <ScrollView>
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="Add Budget"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center" />
+                        
+                        <!-- Error Message -->
+                        <Frame IsVisible="{Binding IsError}"
+                               BackgroundColor="#FFF0F0"
+                               BorderColor="#FFD0D0"
+                               Padding="10"
+                               Margin="0,0,0,10"
+                               HasShadow="False">
+                            <Label Text="{Binding ErrorMessage}"
+                                   TextColor="#D00000"
+                                   FontSize="14" />
+                        </Frame>
+                        
+                        <!-- Name -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Budget Name"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="50">
+                                <Entry Placeholder="Enter budget name"
+                                       Text="{Binding Name}"
+                                       BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Amount -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Amount"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="50">
+                                <Entry Placeholder="Enter amount"
+                                       Text="{Binding Amount}"
+                                       Keyboard="Numeric"
+                                       BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Category -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Category"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Picker ItemsSource="{Binding Source={x:Static model:TransactionCategory.Food}, Converter={StaticResource EnumToListConverter}}"
+                                    SelectedItem="{Binding Category}"
+                                    BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Start Date -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Start Date"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <DatePicker Date="{Binding StartDate}"
+                                        Format="D"
+                                        BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                        
+                        <!-- End Date -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="End Date"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <DatePicker Date="{Binding EndDate}"
+                                        Format="D"
+                                        BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Period -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Period"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Picker ItemsSource="{Binding Source={x:Array Type=x:String}, StringFormat=Weekly,Monthly,Yearly}"
+                                    SelectedItem="{Binding Period}"
+                                    BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Buttons -->
+                        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                            <Button Text="Cancel"
+                                    Command="{Binding CancelAddBudgetCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource Primary}"
+                                    BorderColor="{StaticResource Primary}"
+                                    BorderWidth="1"
+                                    WidthRequest="120" />
+                            
+                            <Button Text="Save"
+                                    Command="{Binding SaveBudgetCommand}"
+                                    WidthRequest="120" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Frame>
+        </Grid>
+    </Grid>
+</ContentPage>

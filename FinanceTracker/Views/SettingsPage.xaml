@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FinanceTracker.Views.SettingsPage"
+             xmlns:viewmodel="clr-namespace:FinanceTracker.ViewModels"
+             xmlns:model="clr-namespace:FinanceTracker.Models"
+             xmlns:converters="clr-namespace:FinanceTracker.Converters"
+             x:DataType="viewmodel:SettingsViewModel"
+             Title="{Binding Title}">
+
+    <RefreshView Command="{Binding RefreshCommand}" 
+                 IsRefreshing="{Binding IsBusy}">
+        <ScrollView>
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                  Padding="20"
+                  RowSpacing="20">
+
+                <Label Grid.Row="0"
+                       Text="Settings"
+                       FontSize="24"
+                       FontAttributes="Bold" />
+
+                <!-- Personal Information -->
+                <Frame Grid.Row="1"
+                       Padding="15"
+                       HasShadow="True"
+                       CornerRadius="10">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="Personal Information"
+                               FontSize="16"
+                               FontAttributes="Bold" />
+
+                        <!-- Error Message -->
+                        <Frame IsVisible="{Binding IsError}"
+                               BackgroundColor="#FFF0F0"
+                               BorderColor="#FFD0D0"
+                               Padding="10"
+                               Margin="0,0,0,10"
+                               HasShadow="False">
+                            <Label Text="{Binding ErrorMessage}"
+                                   TextColor="#D00000"
+                                   FontSize="14" />
+                        </Frame>
+
+                        <!-- Success Message -->
+                        <Frame IsVisible="{Binding IsSuccess}"
+                               BackgroundColor="#F0FFF0"
+                               BorderColor="#D0FFD0"
+                               Padding="10"
+                               Margin="0,0,0,10"
+                               HasShadow="False">
+                            <Label Text="Settings saved successfully!"
+                                   TextColor="#00D000"
+                                   FontSize="14" />
+                        </Frame>
+                        
+                        <!-- First Name -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="First Name"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="50">
+                                <Entry Placeholder="Enter your first name"
+                                       Text="{Binding FirstName}"
+                                       BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Last Name -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Last Name"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="50">
+                                <Entry Placeholder="Enter your last name"
+                                       Text="{Binding LastName}"
+                                       BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Email -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Email"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Frame Padding="15,0"
+                                   HasShadow="False"
+                                   BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                   HeightRequest="50">
+                                <Entry Placeholder="Enter your email"
+                                       Text="{Binding Email}"
+                                       Keyboard="Email"
+                                       BackgroundColor="Transparent" />
+                            </Frame>
+                        </VerticalStackLayout>
+                        
+                        <!-- Date of Birth -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Date of Birth"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <DatePicker Date="{Binding DateOfBirth}"
+                                        Format="D"
+                                        BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Preferences -->
+                <Frame Grid.Row="2"
+                       Padding="15"
+                       HasShadow="True"
+                       CornerRadius="10">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="Preferences"
+                               FontSize="16"
+                               FontAttributes="Bold" />
+                        
+                        <!-- Currency -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Currency"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Picker ItemsSource="{Binding Currencies}"
+                                    SelectedItem="{Binding Currency}"
+                                    BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Theme -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Theme"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Picker ItemsSource="{Binding Source={x:Static model:ThemeOption.Light}, Converter={StaticResource EnumToListConverter}}"
+                                    SelectedItem="{Binding Theme}"
+                                    BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Language -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Language"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+                            <Picker ItemsSource="{Binding Languages}"
+                                    SelectedItem="{Binding Language}"
+                                    BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Notifications -->
+                <Frame Grid.Row="3"
+                       Padding="15"
+                       HasShadow="True"
+                       CornerRadius="10">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="Notifications"
+                               FontSize="16"
+                               FontAttributes="Bold" />
+                        
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Enable Notifications"
+                                   FontSize="14"
+                                   VerticalOptions="Center" />
+                            <Switch Grid.Column="1"
+                                    IsToggled="{Binding NotificationsEnabled}"
+                                    VerticalOptions="Center" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Budget Alerts"
+                                   FontSize="14"
+                                   VerticalOptions="Center" />
+                            <Switch Grid.Column="1"
+                                    IsToggled="{Binding BudgetAlerts}"
+                                    VerticalOptions="Center" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Goal Reminders"
+                                   FontSize="14"
+                                   VerticalOptions="Center" />
+                            <Switch Grid.Column="1"
+                                    IsToggled="{Binding GoalReminders}"
+                                    VerticalOptions="Center" />
+                        </Grid>
+                        
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Monthly Reports"
+                                   FontSize="14"
+                                   VerticalOptions="Center" />
+                            <Switch Grid.Column="1"
+                                    IsToggled="{Binding MonthlyReports}"
+                                    VerticalOptions="Center" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Save Button -->
+                <Button Grid.Row="4"
+                        Text="Save Settings"
+                        Command="{Binding SaveCommand}"
+                        HorizontalOptions="Center"
+                        WidthRequest="200" />
+
+                <!-- Logout Button -->
+                <Button Grid.Row="5"
+                        Text="Logout"
+                        Command="{Binding LogoutCommand}"
+                        BackgroundColor="#F44336"
+                        TextColor="White"
+                        HorizontalOptions="Center"
+                        WidthRequest="200" />
+            </Grid>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>
