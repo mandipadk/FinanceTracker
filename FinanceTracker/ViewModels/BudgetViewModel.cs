@@ -28,6 +28,8 @@ namespace FinanceTracker.ViewModels
         private decimal _totalBudget;
         private decimal _totalSpent;
         private decimal _totalRemaining;
+        private System.Collections.Generic.List<TransactionCategory> _categories;
+        private System.Collections.Generic.List<string> _periods;
 
         public ObservableCollection<Budget> Budgets
         {
@@ -113,6 +115,18 @@ namespace FinanceTracker.ViewModels
             set => SetProperty(ref _totalRemaining, value);
         }
 
+        public System.Collections.Generic.List<TransactionCategory> Categories
+        {
+            get => _categories;
+            set => SetProperty(ref _categories, value);
+        }
+
+        public System.Collections.Generic.List<string> Periods
+        {
+            get => _periods;
+            set => SetProperty(ref _periods, value);
+        }
+
         public ICommand RefreshCommand { get; }
         public ICommand AddBudgetCommand { get; }
         public ICommand SaveBudgetCommand { get; }
@@ -125,6 +139,14 @@ namespace FinanceTracker.ViewModels
             _databaseService = databaseService;
             _sessionService = sessionService;
             Budgets = new ObservableCollection<Budget>();
+
+            // Initialize categories and periods
+            Categories = Enum.GetValues(typeof(TransactionCategory))
+                .Cast<TransactionCategory>()
+                .Where(c => c != TransactionCategory.Salary && c != TransactionCategory.Investment && c != TransactionCategory.Gift)
+                .ToList();
+
+            Periods = new System.Collections.Generic.List<string> { "Weekly", "Monthly", "Yearly" };
 
             RefreshCommand = new Command(async () => await LoadBudgetsAsync());
             AddBudgetCommand = new Command(ShowAddBudget);

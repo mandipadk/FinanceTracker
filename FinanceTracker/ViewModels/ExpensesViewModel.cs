@@ -28,6 +28,8 @@ namespace FinanceTracker.ViewModels
         private string _recurrenceFrequency = "Monthly";
         private string _errorMessage;
         private bool _isError;
+        private System.Collections.Generic.List<TransactionCategory> _categories;
+        private System.Collections.Generic.List<string> _recurrenceFrequencies;
 
         public ObservableCollection<Transaction> Transactions
         {
@@ -113,6 +115,18 @@ namespace FinanceTracker.ViewModels
             set => SetProperty(ref _isError, value);
         }
 
+        public System.Collections.Generic.List<TransactionCategory> Categories
+        {
+            get => _categories;
+            set => SetProperty(ref _categories, value);
+        }
+
+        public System.Collections.Generic.List<string> RecurrenceFrequencies
+        {
+            get => _recurrenceFrequencies;
+            set => SetProperty(ref _recurrenceFrequencies, value);
+        }
+
         public ICommand RefreshCommand { get; }
         public ICommand AddTransactionCommand { get; }
         public ICommand SaveTransactionCommand { get; }
@@ -125,6 +139,10 @@ namespace FinanceTracker.ViewModels
             _databaseService = databaseService;
             _sessionService = sessionService;
             Transactions = new ObservableCollection<Transaction>();
+
+            // Initialize categories and recurrence frequencies
+            Categories = Enum.GetValues(typeof(TransactionCategory)).Cast<TransactionCategory>().ToList();
+            RecurrenceFrequencies = new System.Collections.Generic.List<string> { "Daily", "Weekly", "Monthly", "Yearly" };
 
             RefreshCommand = new Command(async () => await LoadTransactionsAsync());
             AddTransactionCommand = new Command(ShowAddTransaction);

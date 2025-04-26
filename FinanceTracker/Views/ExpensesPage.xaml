@@ -12,6 +12,9 @@
         <ResourceDictionary>
             <converters:CategoryToIconConverter x:Key="CategoryToIconConverter" />
             <converters:TransactionTypeToColorConverter x:Key="TransactionTypeToColorConverter" />
+            <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+            <converters:EnumToBoolConverter x:Key="EnumToBoolConverter" />
+            <converters:EnumToListConverter x:Key="EnumToListConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -184,7 +187,7 @@
                             <Label Text="Category"
                                    FontSize="14"
                                    TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
-                            <Picker ItemsSource="{Binding Source={x:Static model:TransactionCategory.Food}, Converter={StaticResource EnumToListConverter}}"
+                            <Picker ItemsSource="{Binding Categories}"
                                     SelectedItem="{Binding Category}"
                                     BackgroundColor="Transparent" />
                         </VerticalStackLayout>
@@ -232,7 +235,7 @@
                             <Label Text="Frequency"
                                    FontSize="14"
                                    TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
-                            <Picker ItemsSource="{Binding Source={x:Array Type=x:String}, StringFormat=Daily,Weekly,Monthly,Yearly}"
+                            <Picker ItemsSource="{Binding RecurrenceFrequencies}"
                                     SelectedItem="{Binding RecurrenceFrequency}"
                                     BackgroundColor="Transparent" />
                         </VerticalStackLayout>

@@ -11,6 +11,8 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <converters:CategoryToIconConverter x:Key="CategoryToIconConverter" />
+            <converters:DoubleToPercentageConverter x:Key="DoubleToPercentageConverter" />
+            <converters:EnumToListConverter x:Key="EnumToListConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -229,7 +231,7 @@
                             <Label Text="Category"
                                    FontSize="14"
                                    TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
-                            <Picker ItemsSource="{Binding Source={x:Static model:TransactionCategory.Food}, Converter={StaticResource EnumToListConverter}}"
+                            <Picker ItemsSource="{Binding Categories}"
                                     SelectedItem="{Binding Category}"
                                     BackgroundColor="Transparent" />
                         </VerticalStackLayout>
@@ -259,7 +261,7 @@
                             <Label Text="Period"
                                    FontSize="14"
                                    TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
-                            <Picker ItemsSource="{Binding Source={x:Array Type=x:String}, StringFormat=Weekly,Monthly,Yearly}"
+                            <Picker ItemsSource="{Binding Periods}"
                                     SelectedItem="{Binding Period}"
                                     BackgroundColor="Transparent" />
                         </VerticalStackLayout>
